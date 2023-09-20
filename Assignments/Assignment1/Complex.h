@@ -10,6 +10,7 @@ private:
     double imaginary;
 
 public:
+    Complex();
     Complex(double r, double i);
     double getReal();
     double getImaginary();

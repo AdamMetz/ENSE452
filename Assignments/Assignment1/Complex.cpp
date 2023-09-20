@@ -1,5 +1,10 @@
 #include "Complex.h"
 
+Complex::Complex() {
+	real = 0;
+	imaginary = 0;
+}
+
 Complex::Complex(double r, double i) {
 	real = r;
 	imaginary = i;
@@ -27,6 +32,9 @@ Complex Complex::multiply(Complex other) {
 Complex Complex::divide(Complex other) {
 	Complex numerator = this->multiply(other.getConjugate());
 	Complex denominator = other.multiply(other.getConjugate());
+
+	if (denominator.getReal() == 0) { throw std::runtime_error("error code: 4: divide by zero"); }
+
 	return Complex(
 		numerator.getReal() / denominator.getReal(),
 		numerator.getImaginary() / denominator.getReal()
@@ -36,13 +44,13 @@ Complex Complex::divide(Complex other) {
 std::string Complex::toString() {
 	return 
 		std::to_string(real) 
-		+ (imaginary > 0 ? " + j " : " - j ") 
+		+ (imaginary >= 0 ? " + j " : " - j ") 
 		+ std::to_string(imaginary);
 }
 
 void Complex::print() {
 	printf("%g", real);
-	std::cout << (imaginary > 0 ? " + j " : " - j ");
-	printf("%g", imaginary > 0 ? imaginary : -imaginary);
+	std::cout << (imaginary >= 0 ? " + j " : " - j ");
+	printf("%g", imaginary >= 0 ? imaginary : -imaginary);
 	std::cout << std::endl;
 }
