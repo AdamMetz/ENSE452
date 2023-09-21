@@ -33,7 +33,9 @@ Complex Complex::divide(Complex other) {
 	Complex numerator = this->multiply(other.getConjugate());
 	Complex denominator = other.multiply(other.getConjugate());
 
-	if (denominator.getReal() == 0) { throw std::runtime_error("error code: 4: divide by zero"); }
+	const double threshold = 1e-6;
+
+	if (denominator.getReal() < threshold) { throw std::runtime_error("error code: 4: divide by zero"); }
 
 	return Complex(
 		numerator.getReal() / denominator.getReal(),
