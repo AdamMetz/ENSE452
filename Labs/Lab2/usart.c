@@ -24,10 +24,11 @@ void serial_open(void) {
 }
 
 void serial_close(void) {
-    // Reset USART2 and GPIOA to their initial configurations
+    // Reset USART2
+		USART2->BRR = 0;
     USART2->CR1 &= ~(USART_CR1_TE | USART_CR1_RE | USART_CR1_UE);
     
-    // Configure PA2 and PA3 back to their initial states (input floating)
+    // Reset PA2 & PA3
     GPIOA->CRL &= ~(GPIO_CRL_CNF2 | GPIO_CRL_MODE2 | GPIO_CRL_CNF3 | GPIO_CRL_MODE3);
 }
 
