@@ -15,6 +15,8 @@ failure.
 @param b the 8-bit quantity to be sent.
 @pre must have already called serial_open()
 */
-int sendbyte(uint8_t b);
+int sendbyte(uint8_t b, uint32_t Timeout);
+
+uint8_t getbyte(uint32_t Timeout);
 
 void USART2_IRQHandler(void);

@@ -5,14 +5,14 @@
 #include <stdio.h>
 
 void CLI_Transmit(uint8_t *pData, uint16_t Size) {
-	sendbyte('\n');
-	sendbyte('\r');
+	sendbyte('\n', 1000);
+	sendbyte('\r', 1000);
 	
 	for (int i = 0; i < Size; i++) {
-		sendbyte(pData[i]);
+		sendbyte(pData[i], 1000);
 	}
-	sendbyte('\n');
-	sendbyte('\r');
+	sendbyte('\n', 1000);
+	sendbyte('\r', 1000);
 }
 
 /*
@@ -73,14 +73,13 @@ void process_command(uint8_t *user_input){
 	} else {
 		message = (uint8_t *)"Invalid command, please try again";
 	}
-	CLI_Transmit(user_input, (uint16_t)strlen((char *)user_input));
 	CLI_Transmit(message, (uint16_t)strlen((char *)message));
 }
 
 // Displays the ASCII value of the character entered, useful for debugging inputs like backspace
-void debug_return_characters(uint8_t received_byte){
+void debug_return_characters(uint32_t received_byte){
 	// Convert the ASCII code to a string
-	char asciiCodeString[4]; // Large enough to hold any ASCII code (up to 3 digits)
+	char asciiCodeString[100]; // Large enough to hold any ASCII code (up to 3 digits)
 	sprintf(asciiCodeString, "%d", received_byte);
 
 	// Transmit the ASCII code string
