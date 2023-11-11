@@ -386,47 +386,27 @@
             <File>
               <FileName>CLI.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\Labs\Lab5\CLI.c</FilePath>
+              <FilePath>.\CLI.c</FilePath>
             </File>
             <File>
               <FileName>CLI.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\..\Labs\Lab5\CLI.h</FilePath>
-            </File>
-            <File>
-              <FileName>LED.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Labs\Lab5\LED.c</FilePath>
-            </File>
-            <File>
-              <FileName>LED.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\Labs\Lab5\LED.h</FilePath>
+              <FilePath>.\CLI.h</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\Labs\Lab5\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>timer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Labs\Lab5\timer.c</FilePath>
-            </File>
-            <File>
-              <FileName>timer.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\Labs\Lab5\timer.h</FilePath>
+              <FilePath>.\main.c</FilePath>
             </File>
             <File>
               <FileName>usart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\Labs\Lab5\usart.c</FilePath>
+              <FilePath>.\usart.c</FilePath>
             </File>
             <File>
               <FileName>usart.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\..\Labs\Lab5\usart.h</FilePath>
+              <FilePath>.\usart.h</FilePath>
             </File>
           </Files>
         </Group>

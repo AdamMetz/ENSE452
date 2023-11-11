@@ -1,11 +1,8 @@
 #include "usart.h"
 #include "CLI.h"
 #include "stm32f10x.h"
-#include "timer.h"
 #include "FreeRTOS.h"
 #include "queue.h"
-
-extern QueueHandle_t xQueue;
 
 #define RECEIVE_BUFFER_SIZE 50
 static uint8_t receive_buffer[RECEIVE_BUFFER_SIZE];
@@ -44,30 +41,18 @@ void serial_open(void) {
 	Send an 8-bit byte to the serial port, using the configured bit-rate, # of bits, etc.
 	Returns 0 on success and non-zero on failure.
 	@param b the 8-bit quantity to be sent.
-	@param Timeout the timeout in ms before transmission is cancelled.
 	@pre must have already called serial_open()
 */
-int sendbyte(uint8_t b, uint32_t Timeout) {
-		uint32_t initial_time = ms_counter;
-
-    // Wait for the transmit data register to be empty, or for a timeout to occur
-    while (!(USART2->SR & USART_SR_TXE)){
-			if (ms_counter - initial_time > Timeout){
-				return -1; // Error code
-			}
-		}
-
+int sendbyte(uint8_t b) {
+    // Wait for the transmit data register to be empty
+    while (!(USART2->SR & USART_SR_TXE));
+    
     // Send the byte
     USART2->DR = b;
-
-		initial_time = ms_counter;
-    // Wait for transmission to complete, or for a timeout to occur
-    while (!(USART2->SR & USART_SR_TC)){
-			if (ms_counter - initial_time > Timeout){
-				return -1; // Error code
-			}
-		}
-
+    
+    // Wait for transmission to complete
+    while (!(USART2->SR & USART_SR_TC));
+    
     return 0;
 }
 
@@ -75,16 +60,11 @@ void USART2_IRQHandler(void) {
     if (USART2->SR & USART_SR_RXNE) {
         uint8_t received_byte = USART2->DR;
 			
-				// Send frequency commands to the queue
-				if (received_byte == '1' || received_byte == '2'){
-					xQueueSendToFrontFromISR(xQueue, &received_byte, NULL);
-				}
-			
 				// Check if Enter key is pressed, or the max buffer size was reached
 				if (received_byte == '\r' || received_byte == '\n' 
 					|| receive_buffer_index == RECEIVE_BUFFER_SIZE) {
-					sendbyte('\n', 1000);
-					sendbyte('\r', 1000);
+					sendbyte('\n');
+					sendbyte('\r');
 					process_command(receive_buffer);
 					// Clear buffer
 					memset(receive_buffer, 0, sizeof(receive_buffer));
@@ -97,13 +77,13 @@ void USART2_IRQHandler(void) {
 						receive_buffer_index--;
 						
 						// Clear the character from the CLI
-						sendbyte('\b', 1000);   
-						sendbyte(' ', 1000);    
-						sendbyte('\b', 1000);   
+						sendbyte('\b');   
+						sendbyte(' ');    
+						sendbyte('\b');   
 					}
 				} else {
 						receive_buffer[receive_buffer_index] = received_byte;
-						sendbyte(receive_buffer[receive_buffer_index], 1000);
+						sendbyte(receive_buffer[receive_buffer_index]);
 						receive_buffer_index++;
 				}
     }
