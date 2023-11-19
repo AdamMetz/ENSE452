@@ -4,11 +4,13 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
-#include "tasks.h"
 #include "event_groups.h"
 #include "stdbool.h"
 
 #define NUM_LIGHTS 4
+# define TLC_TASK_PRIORITY (tskIDLE_PRIORITY + 2)
+# define CLI_TASK_PRIORITY (tskIDLE_PRIORITY + 1)
+# define CONSOLE_TASK_PRIORITY (tskIDLE_PRIORITY + 1)
 
 // Enum for light states
 typedef enum {
@@ -18,27 +20,13 @@ typedef enum {
     TURN,
 } LightState;
 
-// Event group handle
 QueueHandle_t xTrafficLightQueue;
-static EventGroupHandle_t xTrafficLightEventGroup;
-
-// Bit masks for each light state
-#define RED_BIT   (1 << 0)
-#define YELLOW_BIT (1 << 1)
-#define GREEN_BIT  (1 << 2)
-#define TURN_BIT   (1 << 3)
-
-# define TLC_TASK_PRIORITY (tskIDLE_PRIORITY + 20)
-# define CLI_TASK_PRIORITY (tskIDLE_PRIORITY + 10)
-# define CONSOLE_TASK_PRIORITY (tskIDLE_PRIORITY + 10)
 
 void USART2_IRQHandler(void);
 
 static void vTrafficLightControllerTask();
 static void vCLITask();
 static void vConsoleTask();
-
-#define NORTH_LIGHT_RED (1 << 1)
 
 int main(void) {
 	
