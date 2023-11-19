@@ -4,24 +4,14 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
-#include "event_groups.h"
-#include "stdbool.h"
+#include "trafficLights.h"
 
-#define NUM_LIGHTS 4
 #define TLC_TASK_PRIORITY (tskIDLE_PRIORITY + 2)
 #define CLI_TASK_PRIORITY (tskIDLE_PRIORITY + 1)
 #define CONSOLE_TASK_PRIORITY (tskIDLE_PRIORITY + 1)
 
-// Enum for light states
-typedef enum
-{
-	GREEN,
-	YELLOW,
-	RED,
-	TURN,
-} LightState;
-
 QueueHandle_t xTrafficLightQueue;
+QueueHandle_t xCLIQueue;
 
 void USART2_IRQHandler(void);
 
@@ -36,33 +26,12 @@ int main(void)
 	prepare_CLI();
 
 	xTrafficLightQueue = xQueueCreate(1, sizeof(uint8_t[4]));
+	xCLIQueue = xQueueCreate(1, sizeof(uint8_t[100]));
 
 	xTaskCreate(vTrafficLightControllerTask, "Main", configMINIMAL_STACK_SIZE, NULL, TLC_TASK_PRIORITY, NULL);
-	// xTaskCreate(vCLITask, "CLI", configMINIMAL_STACK_SIZE, NULL, CLI_TASK_PRIORITY, NULL);
-	xTaskCreate(vConsoleTask, "CLI", configMINIMAL_STACK_SIZE, NULL, CONSOLE_TASK_PRIORITY, NULL);
+	xTaskCreate(vCLITask, "CLI", configMINIMAL_STACK_SIZE, NULL, CLI_TASK_PRIORITY, NULL);
+	xTaskCreate(vConsoleTask, "Console", configMINIMAL_STACK_SIZE, NULL, CONSOLE_TASK_PRIORITY, NULL);
 	vTaskStartScheduler();
-}
-
-static void updateLights(uint8_t lights_data[NUM_LIGHTS], LightState new_state)
-{
-	for (int i = 0; i < NUM_LIGHTS; i++)
-	{
-		switch (new_state)
-		{
-		case GREEN:
-			lights_data[i] = (lights_data[i] == 'T') ? 'G' : lights_data[i];
-			break;
-		case YELLOW:
-			lights_data[i] = (lights_data[i] == 'G') ? 'Y' : lights_data[i];
-			break;
-		case TURN:
-			lights_data[i] = (lights_data[i] == 'Y') ? 'R' : (lights_data[i] == 'R') ? 'T'
-																					 : lights_data[i];
-			break;
-		case RED:
-			break;
-		}
-	}
 }
 
 static void vTrafficLightControllerTask()
@@ -81,7 +50,7 @@ static void vTrafficLightControllerTask()
 		// Green Light Phase
 		xQueueSend(xTrafficLightQueue, &lights_data, portMAX_DELAY);
 		vTaskDelayUntil(&last_wake_time, GREEN_LIGHT_DURATION);
-
+		
 		// Yellow Light Phase
 		updateLights(lights_data, YELLOW);
 		xQueueSend(xTrafficLightQueue, &lights_data, portMAX_DELAY);
@@ -102,19 +71,24 @@ static void vTrafficLightControllerTask()
 
 static void vConsoleTask()
 {
-	uint8_t receivedData[4];
+	uint8_t received_data[4];
 	for (;;)
 	{
-		if (xQueueReceive(xTrafficLightQueue, &receivedData, 25) == pdTRUE)
+		if (xQueueReceive(xTrafficLightQueue, &received_data, 25) == pdTRUE)
 		{
-			Update_Intersection_Lights(receivedData);
+			Update_Intersection_Lights(received_data);
 		}
 	}
 }
 
 static void vCLITask()
 {
+	uint8_t received_data[100];
 	for (;;)
 	{
+		if (xQueueReceive(xCLIQueue, &received_data, 25) == pdTRUE)
+		{
+			process_command(received_data);
+		}
 	}
 }

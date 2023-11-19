@@ -5,6 +5,10 @@
 #include "queue.h"
 
 #define RECEIVE_BUFFER_SIZE 50
+
+extern QueueHandle_t xCLIQueue;
+extern unsigned current_column;
+
 static uint8_t receive_buffer[RECEIVE_BUFFER_SIZE];
 static uint8_t receive_buffer_index = 0;
 
@@ -70,7 +74,7 @@ void USART2_IRQHandler(void)
 		{
 			sendbyte('\n');
 			sendbyte('\r');
-			process_command(receive_buffer);
+			xQueueSendFromISR(xCLIQueue, &receive_buffer, NULL);
 			// Clear buffer
 			memset(receive_buffer, 0, sizeof(receive_buffer));
 			receive_buffer_index = 0;
@@ -80,6 +84,7 @@ void USART2_IRQHandler(void)
 		{
 			if (receive_buffer_index > 0)
 			{
+				current_column -= 1;
 				// Replace the deleted value with a null terminator,
 				receive_buffer[receive_buffer_index] = '\0';
 				receive_buffer_index--;
@@ -92,6 +97,7 @@ void USART2_IRQHandler(void)
 		}
 		else
 		{
+			current_column += 1;
 			receive_buffer[receive_buffer_index] = received_byte;
 			sendbyte(receive_buffer[receive_buffer_index]);
 			receive_buffer_index++;

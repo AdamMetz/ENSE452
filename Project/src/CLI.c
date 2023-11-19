@@ -13,6 +13,7 @@
 #define INTERSECTION_SOUTH_LIGHT_DISPLAY_LINE 12
 
 #define SCROLLABLE_REGION_STARTING_LINE 16
+#define SCROLLABLE_REGION_STARTING_COLUMN 5
 
 static uint8_t clearScreenSequence[] = "\x1b[2J";
 static uint8_t cursorPositionSequence[] = "\x1b[16;6H";
@@ -20,6 +21,7 @@ static uint8_t scrollSequence[] = "\x1b[16;r";
 static uint8_t clearLineSequence[] = "\x1b[K";
 
 static unsigned current_line = SCROLLABLE_REGION_STARTING_LINE;
+unsigned current_column = SCROLLABLE_REGION_STARTING_COLUMN;
 
 static uint8_t intersectionDisplay[INTERSECTION_DISPLAY_LENGTH][100] = {
 	"   State: Emergency Vehicle        ",
@@ -65,7 +67,7 @@ void Update_Intersection_State(uint8_t *state)
 	clear_line(INTERSECTION_STATE_DISPLAY_LINE);
 	snprintf(stateDisplayLine, sizeof(stateDisplayLine), "   State: %.20s        ", state);
 	CLI_Transmit((uint8_t *)stateDisplayLine);
-	move_cursor_to_line(current_line, 5);
+	move_cursor_to_line(current_line, current_column);
 }
 /*
 void Update_Intersection_Timer(uint8_t time){
@@ -92,7 +94,7 @@ void Update_Intersection_Lights(uint8_t lights[4])
 	snprintf(lightDisplayLine, sizeof(lightDisplayLine), "                %c                  ", lights[3]);
 	CLI_Transmit((uint8_t *)lightDisplayLine);
 
-	move_cursor_to_line(current_line, 5);
+	move_cursor_to_line(current_line, current_column);
 }
 
 // Transmits data to the status window
@@ -111,7 +113,7 @@ void CLI_Transmit_Status_Window(uint8_t *pData)
 	// Move the cursor back to the line it was on
 	current_line += 1;
 	move_cursor_to_line(current_line, 0);
-	CLI_Transmit((uint8_t *)"cmd> ");
+	CLI_Transmit((uint8_t *)"cmd>");
 }
 
 // Prepares the status window and scrollable command window
@@ -140,6 +142,7 @@ void prepare_CLI(void)
 // Handles the users input, and displays a response message in the status window
 void process_command(uint8_t *user_input)
 {
+	current_column = SCROLLABLE_REGION_STARTING_COLUMN;
 	uint8_t *message;
 	if (strcmp((char *)user_input, "Help") == 0 || strcmp((char *)user_input, "help") == 0)
 	{

@@ -408,6 +408,16 @@
               <FileType>5</FileType>
               <FilePath>.\usart.h</FilePath>
             </File>
+            <File>
+              <FileName>trafficLights.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\trafficLights.c</FilePath>
+            </File>
+            <File>
+              <FileName>trafficLights.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\trafficLights.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
