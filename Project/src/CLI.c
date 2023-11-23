@@ -2,6 +2,7 @@
 #include "usart.h"
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 
 #define INTERSECTION_DISPLAY_LENGTH 12
 
@@ -12,12 +13,12 @@
 #define INTERSECTION_EAST_AND_WEST_LIGHT_DISPLAY_LINE 7
 #define INTERSECTION_SOUTH_LIGHT_DISPLAY_LINE 12
 
-#define SCROLLABLE_REGION_STARTING_LINE 16
+#define SCROLLABLE_REGION_STARTING_LINE 17
 #define SCROLLABLE_REGION_STARTING_COLUMN 5
 
 static uint8_t clearScreenSequence[] = "\x1b[2J";
-static uint8_t cursorPositionSequence[] = "\x1b[16;6H";
-static uint8_t scrollSequence[] = "\x1b[16;r";
+static uint8_t cursorPositionSequence[] = "\x1b[17;6H";
+static uint8_t scrollSequence[] = "\x1b[17;r";
 static uint8_t clearLineSequence[] = "\x1b[K";
 
 static unsigned current_line = SCROLLABLE_REGION_STARTING_LINE;
@@ -144,10 +145,31 @@ void process_command(uint8_t *user_input)
 {
 	current_column = SCROLLABLE_REGION_STARTING_COLUMN;
 	uint8_t *message;
-	if (strcmp((char *)user_input, "Help") == 0 || strcmp((char *)user_input, "help") == 0)
+
+	// Convert user_input to all lowercase
+	for (int i = 0; user_input[i] != '\0'; i++)
 	{
-		message = (uint8_t *)"Command Descriptions:"
-							 "Nothing yet";
+		user_input[i] = tolower(user_input[i]);
+	}
+
+	if (strcmp((char *)user_input, "help") == 0 || strcmp((char *)user_input, "h") == 0)
+	{
+		message = (uint8_t *)"Command Descriptions:\r\n"
+		"Normal (N): Changes the state to normal\r\n"
+		"Maintenance (M): Changes the state to maintenance\r\n"
+		"Emergency (E): Changes the state to emergency vehicle";
+	}
+	else if (strcmp((char *)user_input, "maintenance") == 0 || strcmp((char *)user_input, "m") == 0)
+	{
+		message = (uint8_t *)"State has been changed to maintenance";
+	}
+	else if (strcmp((char *)user_input, "emergency") == 0 || strcmp((char *)user_input, "e") == 0)
+	{
+		message = (uint8_t *)"State has been changed to emergency vehicle";
+	}
+	else if (strcmp((char *)user_input, "normal") == 0 || strcmp((char *)user_input, "n") == 0)
+	{
+		message = (uint8_t *)"State has been changed to normal";
 	}
 	else
 	{
