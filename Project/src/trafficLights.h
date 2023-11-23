@@ -12,3 +12,4 @@ typedef enum
 } LightState;
 
 void updateLights(uint8_t lights_data[], LightState new_state);
+void vTrafficLightControllerTask();

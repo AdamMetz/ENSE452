@@ -12,10 +12,11 @@
 
 QueueHandle_t xTrafficLightQueue;
 QueueHandle_t xCLIQueue;
+QueueHandle_t xStateQueue;
 
 void USART2_IRQHandler(void);
 
-static void vTrafficLightControllerTask();
+extern void vTrafficLightControllerTask();
 static void vCLITask();
 static void vConsoleTask();
 
@@ -27,46 +28,12 @@ int main(void)
 
 	xTrafficLightQueue = xQueueCreate(1, sizeof(uint8_t[4]));
 	xCLIQueue = xQueueCreate(1, sizeof(uint8_t[100]));
+	xStateQueue = xQueueCreate(1, sizeof(uint8_t));
 
 	xTaskCreate(vTrafficLightControllerTask, "Main", configMINIMAL_STACK_SIZE, NULL, TLC_TASK_PRIORITY, NULL);
 	xTaskCreate(vCLITask, "CLI", configMINIMAL_STACK_SIZE, NULL, CLI_TASK_PRIORITY, NULL);
 	xTaskCreate(vConsoleTask, "Console", configMINIMAL_STACK_SIZE, NULL, CONSOLE_TASK_PRIORITY, NULL);
 	vTaskStartScheduler();
-}
-
-static void vTrafficLightControllerTask()
-{
-	uint8_t lights_data[4] = {'G', 'R', 'R', 'G'};
-	uint8_t red_lights[4] = {'R', 'R', 'R', 'R'};
-	TickType_t last_wake_time = xTaskGetTickCount();
-
-	const TickType_t GREEN_LIGHT_DURATION = 5000 / portTICK_PERIOD_MS;
-	const TickType_t YELLOW_LIGHT_DURATION = 2000 / portTICK_PERIOD_MS;
-	const TickType_t TURN_LIGHT_DURATION = 4000 / portTICK_PERIOD_MS;
-	const TickType_t GENERAL_WAIT_DURATION = 1500 / portTICK_PERIOD_MS;
-
-	for (;;)
-	{
-		// Green Light Phase
-		xQueueSend(xTrafficLightQueue, &lights_data, portMAX_DELAY);
-		vTaskDelayUntil(&last_wake_time, GREEN_LIGHT_DURATION);
-		
-		// Yellow Light Phase
-		updateLights(lights_data, YELLOW);
-		xQueueSend(xTrafficLightQueue, &lights_data, portMAX_DELAY);
-		vTaskDelayUntil(&last_wake_time, YELLOW_LIGHT_DURATION);
-
-		// Delay between light change
-		xQueueSend(xTrafficLightQueue, &red_lights, portMAX_DELAY);
-		vTaskDelayUntil(&last_wake_time, GENERAL_WAIT_DURATION);
-
-		// Turn Light Phase
-		updateLights(lights_data, TURN);
-		xQueueSend(xTrafficLightQueue, &lights_data, portMAX_DELAY);
-		vTaskDelayUntil(&last_wake_time, TURN_LIGHT_DURATION);
-
-		updateLights(lights_data, GREEN);
-	}
 }
 
 static void vConsoleTask()

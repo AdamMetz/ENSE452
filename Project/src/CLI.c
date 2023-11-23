@@ -3,6 +3,10 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
+#include "FreeRTOS.h"
+#include "queue.h"
+
+extern QueueHandle_t xStateQueue;
 
 #define INTERSECTION_DISPLAY_LENGTH 12
 
@@ -161,15 +165,21 @@ void process_command(uint8_t *user_input)
 	}
 	else if (strcmp((char *)user_input, "maintenance") == 0 || strcmp((char *)user_input, "m") == 0)
 	{
-		message = (uint8_t *)"State has been changed to maintenance";
+		message = (uint8_t *)"State has been changed to maintenance, all lights are now blinking red";
+		Update_Intersection_State((uint8_t *)"Maintenance");
+		xQueueSend(xStateQueue, (uint8_t *)"M", portMAX_DELAY);
 	}
 	else if (strcmp((char *)user_input, "emergency") == 0 || strcmp((char *)user_input, "e") == 0)
 	{
-		message = (uint8_t *)"State has been changed to emergency vehicle";
+		message = (uint8_t *)"State has been changed to emergency vehicle, all lights are now red";
+		Update_Intersection_State((uint8_t *)"Emergency Vehicle");
+		xQueueSend(xStateQueue, (uint8_t *)"E", portMAX_DELAY);
 	}
 	else if (strcmp((char *)user_input, "normal") == 0 || strcmp((char *)user_input, "n") == 0)
 	{
 		message = (uint8_t *)"State has been changed to normal";
+		Update_Intersection_State((uint8_t *)"Normal");
+		xQueueSend(xStateQueue, (uint8_t *)"N", portMAX_DELAY);
 	}
 	else
 	{
