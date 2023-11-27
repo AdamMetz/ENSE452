@@ -418,6 +418,16 @@
               <FileType>5</FileType>
               <FilePath>.\trafficLights.h</FilePath>
             </File>
+            <File>
+              <FileName>userButton.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\userButton.h</FilePath>
+            </File>
+            <File>
+              <FileName>userButton.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\userButton.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

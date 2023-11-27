@@ -5,6 +5,7 @@
 #include "task.h"
 #include "queue.h"
 #include "trafficLights.h"
+#include "userButton.h"
 
 #define TLC_TASK_PRIORITY (tskIDLE_PRIORITY + 2)
 #define CLI_TASK_PRIORITY (tskIDLE_PRIORITY + 1)
@@ -22,10 +23,10 @@ static void vConsoleTask();
 
 int main(void)
 {
-
 	serial_open();
 	prepare_CLI();
-
+	setup_user_button();
+	
 	xTrafficLightQueue = xQueueCreate(1, sizeof(uint8_t[4]));
 	xCLIQueue = xQueueCreate(1, sizeof(uint8_t[100]));
 	xStateQueue = xQueueCreate(1, sizeof(uint8_t));
