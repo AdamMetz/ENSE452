@@ -14,49 +14,29 @@
 QueueHandle_t xTrafficLightQueue;
 QueueHandle_t xCLIQueue;
 QueueHandle_t xStateQueue;
+QueueHandle_t xConsolePedestrianQueue;
+QueueHandle_t xControllerPedestrianQueue;
 
 void USART2_IRQHandler(void);
 
-extern void vTrafficLightControllerTask();
-static void vCLITask();
-static void vConsoleTask();
+extern void vTrafficLightControllerTask(void);
+extern void vCLITask(void);
+extern void vConsoleTask(void);
 
 int main(void)
 {
 	serial_open();
 	prepare_CLI();
 	setup_user_button();
-	
+
 	xTrafficLightQueue = xQueueCreate(1, sizeof(uint8_t[4]));
 	xCLIQueue = xQueueCreate(1, sizeof(uint8_t[100]));
 	xStateQueue = xQueueCreate(1, sizeof(uint8_t));
+	xConsolePedestrianQueue = xQueueCreate(1, sizeof(uint8_t[2]));
+	xControllerPedestrianQueue = xQueueCreate(1, sizeof(uint8_t));
 
 	xTaskCreate(vTrafficLightControllerTask, "Main", configMINIMAL_STACK_SIZE, NULL, TLC_TASK_PRIORITY, NULL);
 	xTaskCreate(vCLITask, "CLI", configMINIMAL_STACK_SIZE, NULL, CLI_TASK_PRIORITY, NULL);
 	xTaskCreate(vConsoleTask, "Console", configMINIMAL_STACK_SIZE, NULL, CONSOLE_TASK_PRIORITY, NULL);
 	vTaskStartScheduler();
-}
-
-static void vConsoleTask()
-{
-	uint8_t received_data[4];
-	for (;;)
-	{
-		if (xQueueReceive(xTrafficLightQueue, &received_data, 25) == pdTRUE)
-		{
-			Update_Intersection_Lights(received_data);
-		}
-	}
-}
-
-static void vCLITask()
-{
-	uint8_t received_data[100];
-	for (;;)
-	{
-		if (xQueueReceive(xCLIQueue, &received_data, 25) == pdTRUE)
-		{
-			process_command(received_data);
-		}
-	}
 }

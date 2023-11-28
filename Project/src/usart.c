@@ -6,6 +6,9 @@
 
 #define RECEIVE_BUFFER_SIZE 50
 
+#define ASCII_BACKSPACE 8
+#define ASCII_DELETE 127
+
 extern QueueHandle_t xCLIQueue;
 extern unsigned current_column;
 
@@ -78,9 +81,9 @@ void USART2_IRQHandler(void)
 			// Clear buffer
 			memset(receive_buffer, 0, sizeof(receive_buffer));
 			receive_buffer_index = 0;
-			// Check for backspaces, ASCII values 8 and 127
 		}
-		else if (received_byte == 8 || received_byte == 127)
+		// Check for backspace/delete, ASCII values 8 and 127
+		else if (received_byte == ASCII_BACKSPACE || received_byte == ASCII_DELETE)
 		{
 			if (receive_buffer_index > 0)
 			{
